@@ -28,8 +28,6 @@ namespace UnityStandardAssets.Characters.FirstPerson
         [SerializeField] private AudioClip[] m_FootstepSounds;    // an array of footstep sounds that will be randomly selected from.
         [SerializeField] private AudioClip m_JumpSound;           // the sound played when character leaves the ground.
         [SerializeField] private AudioClip m_LandSound;           // the sound played when character touches back on ground.
-		[SerializeField] private UnityEngine.UI.Image reticle_vertical;
-		[SerializeField] private UnityEngine.UI.Image reticle_horizontal;
 
         private Camera m_Camera;
         private bool m_Jump;
@@ -44,6 +42,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private float m_NextStep;
         private bool m_Jumping;
         private AudioSource m_AudioSource;
+		private GameObject reticle_canvas;
 
 		private Animator anim;
 
@@ -62,6 +61,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_MouseLook.Init(transform , m_Camera.transform);
 
 			anim = GetComponentInChildren<Animator> ();
+			reticle_canvas = GameObject.FindWithTag ("Reticle");
         }
 
 
@@ -225,11 +225,9 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 			if(aiming || reloading){
 				m_IsWalking = true;
-				reticle_horizontal.enabled = false;
-				reticle_vertical.enabled = false;
+				reticle_canvas.SetActive(false);
 			} else {
-				reticle_horizontal.enabled = true;
-				reticle_vertical.enabled = true;
+				reticle_canvas.SetActive(true);
 			}
 
 

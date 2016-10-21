@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.Networking;
 
-public class PlayerShooting : MonoBehaviour {
+public class PlayerShooting : NetworkBehaviour {
 
 	//initialize defaults for gun parameters
 
@@ -142,6 +142,8 @@ public class PlayerShooting : MonoBehaviour {
 						if (entity.collider.CompareTag ("Enemy")) {
 							//we hit an enemy
 							Debug.Log ("Shot Enemy");
+						} else if (entity.collider.CompareTag ("Player")) {
+							CmdHitPlayer (entity.transform.gameObject);
 						} else { 
 							//we hit something else so place an impact
 							impacts[currentImpact].transform.position = entity.point;
@@ -200,5 +202,12 @@ public class PlayerShooting : MonoBehaviour {
 		this.needsReload = false;
 		this.lastReloadTime = -1;
 		this.anim.SetBool("Reload", false);
+	}
+
+	//requires [Command] and Cmd prefix
+	//sends commadn to server
+	[Command]
+	public void CmdHitPlayer(GameObject hit) {
+		//hit.GetComponent<NetworkPlayer> ().RpcResolveHit ();
 	}
 }
