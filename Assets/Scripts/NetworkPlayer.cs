@@ -28,9 +28,9 @@ public class NetworkPlayer : NetworkBehaviour {
 		gunCamera.enabled = true;
 		shootingScript.enabled = true;
 
-		gun.gameObject.layer = 8;
+		gun.layer = 8;
 
-		foreach (Transform child in transform) {
+		foreach (Transform child in gun.transform.GetComponentsInChildren<Transform> ()) {
 			child.gameObject.layer = 8;
 		}
 
