@@ -28,6 +28,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         [SerializeField] private AudioClip[] m_FootstepSounds;    // an array of footstep sounds that will be randomly selected from.
         [SerializeField] private AudioClip m_JumpSound;           // the sound played when character leaves the ground.
         [SerializeField] private AudioClip m_LandSound;           // the sound played when character touches back on ground.
+		[SerializeField] private Animator playerAnimator;
 
         private Camera m_Camera;
         private bool m_Jump;
@@ -44,8 +45,6 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private AudioSource m_AudioSource;
 		private GameObject reticle_canvas;
 
-		private Animator anim;
-
         // Use this for initialization
         private void Start()
         {
@@ -60,7 +59,6 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_AudioSource = GetComponent<AudioSource>();
 			m_MouseLook.Init(transform , m_Camera.transform);
 
-			anim = GetComponentInChildren<Animator> ();
 			reticle_canvas = GameObject.FindWithTag ("Reticle");
         }
 
@@ -221,7 +219,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             // keep track of whether or not the character is walking or running
             m_IsWalking = !Input.GetKey(KeyCode.LeftShift);
 			bool aiming = Input.GetButton("Fire2");
-			bool reloading = anim.GetBool("Reload");
+			bool reloading = playerAnimator.GetBool("Reload");
 
 			if(aiming || reloading){
 				m_IsWalking = true;
@@ -231,15 +229,22 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			}
 
 
-			bool moving = ((horizontal + vertical) > 0);
+			bool moving = ((horizontal + vertical) != 0);
 
-			anim.SetBool("Sprint", (!m_IsWalking && moving && !reloading));
+			playerAnimator.SetBool("Run", (!m_IsWalking && moving && !reloading));
+			playerAnimator.SetBool("Walk", (m_IsWalking && moving));
+
 			//reset if we aren't sprinting and we aren't aiming and we aren't reloading
-			//in case we stopped mid sprint 
-			if (!anim.GetBool("Sprint") && !aiming && !reloading) {
-				this.anim.Play("GunNormal");
+			//in case we stopped mid movement we don't complete the move animation  
+			if (!playerAnimator.GetBool("Run") && !aiming && !reloading) {
+				playerAnimator.Play("IdelNoGun");
 			}
-			anim.SetBool("Aim", aiming);
+
+			if (!playerAnimator.GetBool("Walk") && !aiming && !reloading) {
+				playerAnimator.Play("IdelNoGun");
+			}
+
+			playerAnimator.SetBool("Aim", aiming);
 #endif
             // set the desired speed to be walking or running
 			if (m_IsWalking) {

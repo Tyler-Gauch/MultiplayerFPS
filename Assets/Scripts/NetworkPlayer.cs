@@ -28,10 +28,13 @@ public class NetworkPlayer : NetworkBehaviour {
 		gunCamera.enabled = true;
 		shootingScript.enabled = true;
 
-		gun.layer = 8;
+		//add gun to gun layer to avoid clipping
+		if (gun != null) {
+			gun.layer = 8;
 
-		foreach (Transform child in gun.transform.GetComponentsInChildren<Transform> ()) {
-			child.gameObject.layer = 8;
+			foreach (Transform child in gun.transform.GetComponentsInChildren<Transform> ()) {
+				child.gameObject.layer = 8;
+			}
 		}
 
 		gameObject.name = "LOCAL Player";

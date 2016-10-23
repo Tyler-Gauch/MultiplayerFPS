@@ -50,6 +50,15 @@ public class PlayerShooting : NetworkBehaviour {
 	// Camera of player to use for aiming
 	[SerializeField] private Camera gunCamera;
 
+	// the primary gun object
+	[SerializeField] private GameObject primary;
+
+	// the secondary gun object
+	[SerializeField] private GameObject secondary;
+
+	// the reference to our animations controller
+	[SerializeField] private Animator playerAnimator;
+
 	////////////////////////////////////
 	//These are NOT accessible in the UI
 	////////////////////////////////////
@@ -69,9 +78,6 @@ public class PlayerShooting : NetworkBehaviour {
 	// holds if we are shooting or not
 	private bool shooting = false;
 
-	// the reference to our animations controller
-	private Animator anim;
-
 	// Use this for initialization
 	void Start () {
 		//init current magazine to full
@@ -84,9 +90,6 @@ public class PlayerShooting : NetworkBehaviour {
 		for (int i = 0; i < this.maxImpacts; i++) {
 			impacts [i] = (GameObject)Instantiate (impactPrefab);
 		}
-
-		//get the animator
-		anim = GetComponentInChildren<Animator> ();
 	}
 
 	void Update() {
@@ -99,15 +102,26 @@ public class PlayerShooting : NetworkBehaviour {
 		HandleReloading ();
 	}
 
+	private bool hasGun() {
+		return (this.primary != null || this.secondary != null);
+	}
+
 	/**
 	 * Checks if the user wants to shoot
 	 */
 	public void CheckShooting() {
+
+
+
+		if (!this.hasGun ()) {
+			return;
+		}
+
 		bool isAutoShooting = (shootType == 0 && Input.GetButton ("Fire1"));
 		bool isSemiShooting = (shootType == 1 && Input.GetButtonDown ("Fire1"));
 
 		//check if we are trying to shoot and we are not currently reloading or sprinting
-		if ((isAutoShooting || isSemiShooting) && !this.isReloading () && !this.anim.GetBool("Sprint")) {
+		if ((isAutoShooting || isSemiShooting) && !this.isReloading () && !this.playerAnimator.GetBool("Run")) {
 			shooting = true;
 		}
 	}
@@ -128,7 +142,6 @@ public class PlayerShooting : NetworkBehaviour {
 
 				//check if we have any ammo to shoot
 				if (this.currentMagAmount > 0) {
-					anim.SetTrigger ("Fire"); //play the shooting animation
 					muzzleFlash.Play();		  //show muzzleFlash
 					this.currentMagAmount--;  //shoot the bullet 
 
@@ -171,7 +184,7 @@ public class PlayerShooting : NetworkBehaviour {
 			float currentTime = Time.time * 1000; //convert to milliseconds
 			if (this.lastReloadTime == -1) {
 				this.lastReloadTime = currentTime; //set reload time to now
-				this.anim.SetBool("Reload", true);
+				this.playerAnimator.SetBool("Reload", true);
 			} else if (currentTime - this.lastReloadTime >= this.reloadTime) { //time is up actually reload the gun now
 				this.reload();
 			}
@@ -201,7 +214,7 @@ public class PlayerShooting : NetworkBehaviour {
 		}
 		this.needsReload = false;
 		this.lastReloadTime = -1;
-		this.anim.SetBool("Reload", false);
+		this.playerAnimator.SetBool("Reload", false);
 	}
 
 	//requires [Command] and Cmd prefix
